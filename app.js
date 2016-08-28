@@ -15,6 +15,11 @@ weatherApp.config(function ($routeProvider) {
            templateUrl:'templates/forecast.html',
            controller:'forecastController'
        })
+        .when('/forecast/:days', {
+            templateUrl:'templates/forecast.html',
+            controller:'forecastController'
+        })
+
        .otherwise({redirectTo:'/'})
 
 });
@@ -36,14 +41,21 @@ weatherApp.controller('homeController',['$scope','cityService', function($scope,
     })
 }]);
 
-weatherApp.controller('forecastController',['$scope','$resource','cityService', function($scope, $resource, cityService){
+weatherApp.controller('forecastController',['$scope','$resource','$routeParams','cityService', function($scope, $resource,$routeParams,cityService){
 
     $scope.city = cityService.city;
 
-    $scope.weatherAPI = $resource("http://api.openweathermap.org/data/2.5/forecast?appid=bcc5e4f55c68930c3d3e6e684ed45e23" ,{
+    $scope.days = $routeParams.days || 2;
+
+    $scope.weatherAPI = $resource("http://api.openweathermap.org/data/2.5/forecast/daily?units=metric&appid=bcc5e4f55c68930c3d3e6e684ed45e23" ,{
          callback: "JSON_CALLBACK" },{ get: {method: "JSONP" }});
 
-    $scope.weatherResult = $scope.weatherAPI.get({ q: $scope.city, cnt:2 });
+    $scope.weatherResult = $scope.weatherAPI.get({ q: $scope.city, cnt:$scope.days });
 
-    console.log($scope.weatherResult);
+    /*console.log($scope.weatherResult);*/
+
+    $scope.convertToDate = function(dt) {
+        return new Date(dt * 1000);
+    }
+
 }]);
